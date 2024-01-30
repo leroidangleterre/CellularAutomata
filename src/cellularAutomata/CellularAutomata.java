@@ -33,7 +33,35 @@ public class CellularAutomata {
         });
         buttonPanel.add(stepButton);
 
-        final Dimension dimension = new Dimension(800, 600);
+        JButton timerButton = new JButton("start");
+        timerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                worldPanel.startOrStop();
+
+                if (timerButton.getText().equals(("start"))) {
+                    timerButton.setText("stop");
+                } else {
+                    timerButton.setText("start");
+                }
+            }
+
+        });
+        buttonPanel.add(timerButton);
+
+        JButton resetZoomButton = new JButton("Set zoom to 1");
+        resetZoomButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                worldPanel.setZoom(1);
+                worldPanel.repaint();
+            }
+        });
+        buttonPanel.add(resetZoomButton);
+
+        w.addPropertyChangeListener("currentStep", worldPanel);
+
+        final Dimension dimension = new Dimension(1600, 1000);
 
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(worldPanel, BorderLayout.CENTER);

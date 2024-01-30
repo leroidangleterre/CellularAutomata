@@ -9,13 +9,15 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 
 /**
  * @author arthu
  */
 public class WorldPanel extends JPanel implements MouseListener, MouseMotionListener,
-        MouseWheelListener, KeyListener {
+        MouseWheelListener, KeyListener, PropertyChangeListener {
 
     private World w;
 
@@ -28,7 +30,6 @@ public class WorldPanel extends JPanel implements MouseListener, MouseMotionList
         w = newWorld;
         mouseWheelPressed = false;
         setFocusable(true);
-        addKeyListener(this);
         addMouseListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(this);
@@ -36,8 +37,6 @@ public class WorldPanel extends JPanel implements MouseListener, MouseMotionList
 
     @Override
     public void paintComponent(Graphics g) {
-
-        int zoomApp = (int) zoom;
 
         // Background
         g.setColor(Color.white);
@@ -51,14 +50,20 @@ public class WorldPanel extends JPanel implements MouseListener, MouseMotionList
                 Color color = this.getColor(val);
                 g.setColor(color);
                 // Paint a square.
-                int xApp = (int) (col * zoomApp + x0);
-                int yApp = (int) (row * zoomApp + y0);
-                g.fillRect(xApp, yApp, zoomApp, zoomApp);
+                int xApp = (int) (col * zoom + x0);
+                int yApp = (int) (row * zoom + y0);
+
+                // Avoid 1-pixel blank between rows or columns
+                int xAppNext = (int) ((col + 1) * zoom + x0);
+                int yAppNext = (int) ((row + 1) * zoom + y0);
+                int cellAppSize = Math.max(xAppNext - xApp, yAppNext - yApp);
+
+                g.fillRect(xApp, yApp, cellAppSize, cellAppSize);
             }
         }
         // Borders
         g.setColor(Color.black);
-        g.drawRect((int) x0, (int) y0, (int) (w.getNbCols() * zoomApp), (int) (w.getNbRows() * zoomApp));
+        g.drawRect((int) x0, (int) y0, (int) (w.getNbCols() * zoom), (int) (w.getNbRows() * zoom));
     }
 
     @Override
@@ -142,20 +147,32 @@ public class WorldPanel extends JPanel implements MouseListener, MouseMotionList
             break;
         case KeyEvent.VK_ADD:
             if (zoom <= 10) {
-                zoom++;
+                setZoom(zoom + 1);
             } else {
-                zoom *= 1.1;
+                setZoom(zoom * 1.1);
             }
             break;
         case KeyEvent.VK_SUBTRACT:
             if (zoom <= 10) {
-                zoom--;
+                setZoom(zoom - 1);
             } else {
-                zoom /= 1.1;
+                setZoom(zoom / 1.1);
             }
+            break;
+        case KeyEvent.VK_NUMPAD0:
+            setZoom(1);
+            x0 = 0;
+            y0 = 0;
+            repaint();
             break;
         }
         repaint();
+    }
+
+    public void setZoom(double newZoom) {
+        if (newZoom > 0) {
+            zoom = newZoom;
+        }
     }
 
     @Override
@@ -172,7 +189,23 @@ public class WorldPanel extends JPanel implements MouseListener, MouseMotionList
         }
         x0 = e.getX() - fact * (e.getX() - x0);
         y0 = e.getY() - fact * (e.getY() - y0);
-        zoom *= fact;
+        setZoom(zoom * fact);
         repaint();
     }
+
+    public void startOrStop() {
+        w.startOrStop();
+        repaint();
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        /* Récupère l'objet source */
+        World w = (World) evt.getSource();
+
+        /* Récupère l'ancienne et la nouvelle valeur */
+        //        System.out.println("WorldPanel: la valeur " + evt.getPropertyName() + " est passée de " + evt.getOldValue() + " à " + evt.getNewValue());
+        repaint();
+    }
+
 }
