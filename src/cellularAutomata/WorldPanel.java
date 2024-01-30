@@ -36,12 +36,15 @@ public class WorldPanel extends JPanel implements MouseListener, MouseMotionList
 
     @Override
     public void paintComponent(Graphics g) {
+
+        int zoomApp = (int) zoom;
+
+        // Background
         g.setColor(Color.white);
         g.fillRect(0, 0, g.getClipBounds().width, g.getClipBounds().height);
 
         // Compute the first and last visible row and column;
         // Paint a square for each cell
-        int zoomApp = (int) zoom;
         for (int row = 0; row < w.getNbRows(); row++) {
             for (int col = 0; col < w.getNbCols(); col++) {
                 int val = w.get(row, col);
@@ -53,6 +56,9 @@ public class WorldPanel extends JPanel implements MouseListener, MouseMotionList
                 g.fillRect(xApp, yApp, zoomApp, zoomApp);
             }
         }
+        // Borders
+        g.setColor(Color.black);
+        g.drawRect((int) x0, (int) y0, (int) (w.getNbCols() * zoomApp), (int) (w.getNbRows() * zoomApp));
     }
 
     @Override
