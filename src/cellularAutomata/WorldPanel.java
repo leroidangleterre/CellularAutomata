@@ -114,9 +114,9 @@ public class WorldPanel extends JPanel implements MouseListener, MouseMotionList
     private Color getColor(int val) {
         switch (val) {
         case 0:
-            return Color.white;
+            return Color.red;
         case 1:
-            return Color.black;
+            return Color.green;
         case 2:
             return Color.blue;
         case 3:
